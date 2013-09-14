@@ -14,9 +14,12 @@ class CreditCardTest < Test::Unit::TestCase
   def test_constructor_should_properly_assign_values
     c = credit_card
 
+    year_now = Time.now.year + 1
+
     assert_equal "4242424242424242", c.number
     assert_equal 9, c.month
-    assert_equal Time.now.year + 1, c.year
+    assert_equal year_now, c.year
+    assert_equal "9/#{year_now}", c.expiration_date
     assert_equal "Longbob Longsen", c.name
     assert_equal "visa", c.brand
     assert_valid c
@@ -311,6 +314,13 @@ class CreditCardTest < Test::Unit::TestCase
     c = CreditCard.new :name => "Twiggy"
     assert_equal "", c.first_name
     assert_equal "Twiggy", c.last_name
+  end
+
+  def test_should_assign_an_expiration_date
+    c = CreditCard.new :expiration_date => "09/2020"
+
+    assert_equal "09", c.month
+    assert_equal "2020", c.year
   end
 
   # The following is a regression for a bug that raised an exception when

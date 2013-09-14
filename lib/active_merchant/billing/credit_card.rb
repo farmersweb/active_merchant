@@ -175,8 +175,8 @@ module ActiveMerchant #:nodoc:
 
       def expiration_date=(full_date)
         dates = full_date.split('/')
-        self.month  = dates.pop
-        self.year = dates.pop
+        self.year  = dates.pop
+        self.month = dates.pop
       end
 
       def verification_value?
