@@ -11,11 +11,9 @@ class BaseTest < Test::Unit::TestCase
   
   def test_should_return_a_new_gateway_specified_by_symbol_name
     assert_equal BogusGateway,         Base.gateway(:bogus)
-    assert_equal MonerisGateway,       Base.gateway(:moneris)
-    assert_equal MonerisUsGateway,     Base.gateway(:moneris_us)
-    assert_equal AuthorizeNetGateway,  Base.gateway(:authorize_net)
-    assert_equal UsaEpayGateway,       Base.gateway(:usa_epay)
-    assert_equal LinkpointGateway,     Base.gateway(:linkpoint)
+    assert_equal BraintreeGateway,     Base.gateway(:braintree)
+    assert_equal BalancedGateway,      Base.gateway(:balanced)
+    assert_equal StripeGateway,        Base.gateway(:stripe)
   end
 
   def test_should_raise_when_invalid_gateway_is_passed
@@ -33,10 +31,10 @@ class BaseTest < Test::Unit::TestCase
   end
 
   def test_should_return_an_integration_by_name
-    chronopay = Base.integration(:chronopay)
+    bogus = Base.integration(:bogus)
     
-    assert_equal Integrations::Chronopay, chronopay
-    assert_instance_of Integrations::Chronopay::Notification, chronopay.notification('name=cody')
+    assert_equal Integrations::Bogus, bogus
+    assert_instance_of Integrations::Bogus::Notification, bogus.notification('name=cody')
   end
 
   def test_should_set_modes
