@@ -91,36 +91,57 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :first_name => 'John',
       :last_name => 'Smith'
     )
+
+    credit_card = mock()
+    credit_card.stubs(:token).returns('398fjda')
+
     customer.stubs(:id).returns('123')
-    result = Braintree::SuccessfulResult.new(:customer => customer)
+    result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
+
+    Braintree::Customer.expects(:find).with do |params|
+      assert_equal customer.id, params
+    end.raises(Braintree::NotFoundError)
+
     Braintree::Customer.expects(:create).with do |params|
       params[:credit_card][:options].has_key?(:verify_card)
       assert_equal true, params[:credit_card][:options][:verify_card]
       params
     end.returns(result)
 
-    response = @gateway.store(credit_card("41111111111111111111"), :verify_card => true)
-    assert_equal "123", response.params["customer_vault_id"]
+    response = @gateway.store(credit_card("41111111111111111111"), :id => customer.id, :verify_card => true)
+
+    assert_equal '123', response.params["customer_vault_id"]
+    assert_equal '398fjda', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
   end
 
   def test_store_with_verify_card_false
     customer = mock(
-      :credit_cards => [],
-      :email => 'email',
-      :first_name => 'John',
-      :last_name => 'Smith'
+        :credit_cards => [],
+        :email => 'email',
+        :first_name => 'John',
+        :last_name => 'Smith'
     )
+
+    credit_card = mock()
+    credit_card.stubs(:token).returns('398fjda')
+
     customer.stubs(:id).returns('123')
-    result = Braintree::SuccessfulResult.new(:customer => customer)
+    result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
+
+    Braintree::Customer.expects(:find).with do |params|
+      assert_equal customer.id, params
+    end.raises(Braintree::NotFoundError)
+
     Braintree::Customer.expects(:create).with do |params|
       params[:credit_card][:options].has_key?(:verify_card)
       assert_equal false, params[:credit_card][:options][:verify_card]
       params
     end.returns(result)
 
-    response = @gateway.store(credit_card("41111111111111111111"), :verify_card => false)
+    response = @gateway.store(credit_card("41111111111111111111"), :id => '123', :verify_card => false)
     assert_equal "123", response.params["customer_vault_id"]
+    assert_equal '398fjda', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
   end
 
@@ -139,9 +160,18 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :zip => "60622",
       :country_name => "US"
     }
+
+    credit_card = mock()
+    credit_card.stubs(:token).returns('398fjda')
+
     customer = mock(customer_attributes)
     customer.stubs(:id).returns('123')
-    result = Braintree::SuccessfulResult.new(:customer => customer)
+    result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
+
+    Braintree::Customer.expects(:find).with do |params|
+      assert_equal customer.id, params
+    end.raises(Braintree::NotFoundError)
+
     Braintree::Customer.expects(:create).with do |params|
       assert_not_nil params[:credit_card][:billing_address]
       [:street_address, :extended_address, :locality, :region, :postal_code, :country_name].each do |billing_attribute|
@@ -150,7 +180,47 @@ class BraintreeBlueTest < Test::Unit::TestCase
       params
     end.returns(result)
 
-    @gateway.store(credit_card("41111111111111111111"), :billing_address => billing_address)
+    @gateway.store(credit_card("41111111111111111111"), :id => '123', :billing_address => billing_address)
+  end
+
+  def test_store_existing_customer
+    customer = mock(
+        :credit_cards => [],
+        :email => 'email',
+        :first_name => 'John',
+        :last_name => 'Smith'
+    )
+
+    credit_card = mock()
+    credit_card.stubs(:token).returns('398fjda')
+
+    customer.stubs(:id).returns('123')
+    result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
+
+    Braintree::Customer.expects(:find).with do |params|
+      assert_equal customer.id, params
+    end.returns(customer)
+
+    Braintree::CreditCard.expects(:create).with do |params|
+      cc = {
+          :number=>"41111111111111111111",
+          :cvv=>"123",
+          :expiration_month=>"09",
+          :expiration_year=>"2014",
+          :cardholder_name=>"Longbob Longsen",
+          :customer_id=>"123",
+          :options=>{
+              :verify_card=>true,
+              :fail_on_duplicate_payment_method=>true
+          }}
+      assert_equal params, cc
+    end.returns(result)
+
+    response = @gateway.store(credit_card("41111111111111111111"), :id => customer.id, :verify_card => true)
+
+    assert_equal '123', response.params["customer_vault_id"]
+    assert_equal '398fjda', response.params["token"]
+    assert_equal response.params["customer_vault_id"], response.authorization
   end
 
   def test_update_with_cvv

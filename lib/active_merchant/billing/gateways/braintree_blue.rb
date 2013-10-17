@@ -112,33 +112,66 @@ module ActiveMerchant #:nodoc:
       def void(authorization, options = {})
         commit do
           result = Braintree::Transaction.void(authorization)
-          Response.new(result.success?, message_from_result(result),
-            {:braintree_transaction => (transaction_hash(result.transaction) if result.success?)},
-            {:authorization => (result.transaction.id if result.success?)}
+          Response.new(
+              result.success?,
+              message_from_result(result),
+              {:braintree_transaction => (transaction_hash(result.transaction) if result.success?)},
+              {:authorization => (result.transaction.id if result.success?)}
           )
         end
       end
 
       def store(creditcard, options = {})
         commit do
+
           parameters = {
             :first_name => creditcard.first_name,
             :last_name => creditcard.last_name,
             :email => options[:email],
+            :id => options[:id],
             :credit_card => {
               :number => creditcard.number,
               :cvv => creditcard.verification_value,
               :expiration_month => creditcard.month.to_s.rjust(2, "0"),
-              :expiration_year => creditcard.year.to_s
+              :expiration_year => creditcard.year.to_s,
+              :cardholder_name => creditcard.name
             }
           }
-          result = Braintree::Customer.create(merge_credit_card_options(parameters, options))
-          Response.new(result.success?, message_from_result(result),
+
+          begin
+            # Attempt to find this customer and add a credit card
+            customer = Braintree::Customer.find(options[:id])
+
+            # If that was successful, prepare the parameters for a create call
+            options[:fail_on_duplicate_payment_method] = true
+            parameters[:credit_card][:customer_id] = options[:id]
+            parameters = merge_credit_card_options(parameters, options)
+            result = Braintree::CreditCard.create(parameters[:credit_card])
+
+            if (result.success?)
+              credit_card = result.credit_card
+              customer.credit_cards << credit_card
+            end
+
+          # If no luck, create a new customer and card at once
+          rescue Braintree::NotFoundError
+            result = Braintree::Customer.create(merge_credit_card_options(parameters, options))
+
+            if (result.success?)
+              customer = result.customer
+              credit_card = result.customer.credit_cards[0]
+            end
+          end
+
+          Response.new(
+            result.success?,
+            message_from_result(result),
             {
-              :braintree_customer => (customer_hash(result.customer) if result.success?),
-              :customer_vault_id => (result.customer.id if result.success?)
+              :braintree_customer => (customer_hash(customer) if result.success?),
+              :token => (credit_card.token if result.success?),
+              :customer_vault_id => (customer.id if result.success?)
             },
-            :authorization => (result.customer.id if result.success?)
+            :authorization => (customer.id if result.success?)
           )
         end
       end
@@ -185,7 +218,7 @@ module ActiveMerchant #:nodoc:
       def merge_credit_card_options(parameters, options)
         valid_options = {}
         options.each do |key, value|
-          valid_options[key] = value if [:update_existing_token, :verify_card, :verification_merchant_account_id].include?(key)
+          valid_options[key] = value if [:fail_on_duplicate_payment_method, :update_existing_token, :verify_card, :verification_merchant_account_id].include?(key)
         end
 
         parameters[:credit_card] ||= {}
@@ -233,6 +266,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def create_transaction(transaction_type, money, credit_card_or_vault_id, options)
+
         transaction_params = create_transaction_parameters(money, credit_card_or_vault_id, options)
 
         commit do

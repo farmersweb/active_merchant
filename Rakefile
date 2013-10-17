@@ -36,6 +36,12 @@ namespace :test do
     t.verbose = true
   end
 
+  Rake::TestTask.new(:braintree_remote) do |t|
+    t.pattern = 'test/remote/**/remote_braintree_blue_test.rb'
+    t.ruby_opts << '-rubygems'
+    t.libs << 'test'
+    t.verbose = true
+  end
 end
 
 desc "Delete tar.gz / zip"
