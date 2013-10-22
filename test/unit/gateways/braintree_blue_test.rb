@@ -84,18 +84,85 @@ class BraintreeBlueTest < Test::Unit::TestCase
     @gateway.authorize(100, credit_card("41111111111111111111"))
   end
 
-  def test_store_with_verify_card_true
-    customer = mock(
-      :credit_cards => [],
-      :email => 'email',
-      :first_name => 'John',
-      :last_name => 'Smith'
-    )
+  def test_find_customer
 
-    credit_card = mock()
+    billing_address = mock(
+        :street_address => "1 E Main St",
+        :extended_address => "Suite 403",
+        :locality => "Chicago",
+        :region => "Illinois",
+        :postal_code => "60622"
+    )
+    credit_card = mock(
+        :bin => '510510',
+        :expiration_date => '12/2020',
+        :token => '123ygh',
+        :last_4 => '5100',
+        :card_type => 'MasterCard',
+        :masked_number => '510510******5100',
+        :cardholder_name => 'John Smith'
+    )
+    customer = mock(
+        :id => '123',
+        :email => 'email',
+        :first_name => 'John',
+        :last_name => 'Smith',
+    )
+    credit_card.stubs(:billing_address).returns(billing_address)
+    customer.stubs(:credit_cards).returns([credit_card])
+
+    Braintree::Customer.expects(:find).with do |params|
+      assert_equal '123', params
+    end.returns(customer)
+
+    response = @gateway.find_customer('123')
+    assert_equal '123', response.params["braintree_customer"]["id"]
+    assert_equal '510510', response.params["braintree_customer"]["credit_cards"][0]["bin"]
+    assert_equal '12/2020', response.params["braintree_customer"]["credit_cards"][0]["expiration_date"]
+    assert_equal '123ygh', response.params["braintree_customer"]["credit_cards"][0]["token"]
+    assert_equal '5100', response.params["braintree_customer"]["credit_cards"][0]["last_4"]
+    assert_equal 'MasterCard', response.params["braintree_customer"]["credit_cards"][0]["card_type"]
+    assert_equal '510510******5100', response.params["braintree_customer"]["credit_cards"][0]["masked_number"]
+    assert_equal 'John Smith', response.params["braintree_customer"]["credit_cards"][0]["cardholder_name"]
+    assert_equal '1 E Main St', response.params["braintree_customer"]["credit_cards"][0]["billing_address"]["street_address"]
+    assert_equal '60622', response.params["braintree_customer"]["credit_cards"][0]["billing_address"]["postal_code"]
+  end
+
+  def test_failed_find_customer
+    Braintree::Customer.expects(:find).with do |params|
+      assert_equal "123", params
+    end.raises(Braintree::NotFoundError)
+    response = @gateway.find_customer("123")
+    assert_failure response
+  end
+
+  def test_store_with_verify_card_true
+    billing_address = mock(
+        :street_address => "1 E Main St",
+        :extended_address => "Suite 403",
+        :locality => "Chicago",
+        :region => "Illinois",
+        :postal_code => "60622"
+    )
+    credit_card = mock(
+        :bin => '510510',
+        :expiration_date => '12/2020',
+        :last_4 => '5100',
+        :card_type => 'MasterCard',
+        :masked_number => '510510******5100',
+        :cardholder_name => 'John Smith'
+    )
+    credit_card.stubs(:billing_address).returns(billing_address)
     credit_card.stubs(:token).returns('398fjda')
 
+    customer = mock(
+        :email => 'email',
+        :first_name => 'John',
+        :last_name => 'Smith'
+    )
+    customer.stubs(:credit_cards).returns([credit_card])
     customer.stubs(:id).returns('123')
+
     result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
 
     Braintree::Customer.expects(:find).with do |params|
@@ -116,17 +183,32 @@ class BraintreeBlueTest < Test::Unit::TestCase
   end
 
   def test_store_with_verify_card_false
+    billing_address = mock(
+        :street_address => "1 E Main St",
+        :extended_address => "Suite 403",
+        :locality => "Chicago",
+        :region => "Illinois",
+        :postal_code => "60622"
+    )
+    credit_card = mock(
+        :bin => '510510',
+        :expiration_date => '12/2020',
+        :last_4 => '5100',
+        :card_type => 'MasterCard',
+        :masked_number => '510510******5100',
+        :cardholder_name => 'John Smith'
+    )
+    credit_card.stubs(:billing_address).returns(billing_address)
+    credit_card.stubs(:token).returns('398fjda')
+
     customer = mock(
-        :credit_cards => [],
         :email => 'email',
         :first_name => 'John',
         :last_name => 'Smith'
     )
-
-    credit_card = mock()
-    credit_card.stubs(:token).returns('398fjda')
-
+    customer.stubs(:credit_cards).returns([credit_card])
     customer.stubs(:id).returns('123')
+
     result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
 
     Braintree::Customer.expects(:find).with do |params|
@@ -146,13 +228,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
   end
 
   def test_store_with_billing_address_options
-    customer_attributes = {
-      :credit_cards => [],
-      :email => 'email',
-      :first_name => 'John',
-      :last_name => 'Smith'
-    }
-    billing_address = {
+    billing_address_attributes = {
       :address1 => "1 E Main St",
       :address2 => "Suite 403",
       :city => "Chicago",
@@ -161,12 +237,32 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :country_name => "US"
     }
 
-    credit_card = mock()
+    billing_address = mock(
+        :street_address => "1 E Main St",
+        :extended_address => "Suite 403",
+        :locality => "Chicago",
+        :region => "Illinois",
+        :postal_code => "60622"
+    )
+    credit_card = mock(
+        :bin => '510510',
+        :expiration_date => '12/2020',
+        :last_4 => '5100',
+        :card_type => 'MasterCard',
+        :masked_number => '510510******5100',
+        :cardholder_name => 'John Smith'
+    )
+    credit_card.stubs(:billing_address).returns(billing_address)
     credit_card.stubs(:token).returns('398fjda')
 
-    customer = mock(customer_attributes)
+    customer = mock(
+        :email => 'email',
+        :first_name => 'John',
+        :last_name => 'Smith'
+    )
+    customer.stubs(:credit_cards).returns([credit_card])
     customer.stubs(:id).returns('123')
-    result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
+    result = Braintree::SuccessfulResult.new(:customer => customer)
 
     Braintree::Customer.expects(:find).with do |params|
       assert_equal customer.id, params
@@ -180,21 +276,34 @@ class BraintreeBlueTest < Test::Unit::TestCase
       params
     end.returns(result)
 
-    @gateway.store(credit_card("41111111111111111111"), :id => '123', :billing_address => billing_address)
+    @gateway.store(credit_card("41111111111111111111"), :id => '123', :billing_address => billing_address_attributes)
   end
 
   def test_store_existing_customer
+    billing_address = mock(
+        :street_address => "1 E Main St",
+        :extended_address => "Suite 403",
+        :locality => "Chicago",
+        :region => "Illinois",
+        :postal_code => "60622"
+    )
+    credit_card = mock(
+        :bin => '510510',
+        :expiration_date => '12/2020',
+        :last_4 => '5100',
+        :card_type => 'MasterCard',
+        :masked_number => '510510******5100',
+        :cardholder_name => 'John Smith'
+    )
+    credit_card.stubs(:token).returns('123ygh')
+    credit_card.stubs(:billing_address).returns(billing_address)
     customer = mock(
-        :credit_cards => [],
-        :email => 'email',
+        :email => 'john@smith.com',
         :first_name => 'John',
         :last_name => 'Smith'
     )
-
-    credit_card = mock()
-    credit_card.stubs(:token).returns('398fjda')
-
     customer.stubs(:id).returns('123')
+    customer.stubs(:credit_cards).returns([])
     result = Braintree::SuccessfulResult.new(:customer => customer, :credit_card => credit_card)
 
     Braintree::Customer.expects(:find).with do |params|
@@ -218,8 +327,27 @@ class BraintreeBlueTest < Test::Unit::TestCase
 
     response = @gateway.store(credit_card("41111111111111111111"), :id => customer.id, :verify_card => true)
 
+    braintree_customer = {"email"=>"john@smith.com",
+                          "first_name"=>"John",
+                          "last_name"=>"Smith",
+                          "credit_cards"=>
+                              [{"bin"=>"510510",
+                                "expiration_date"=>"12/2020",
+                                "token"=>"123ygh",
+                                "last_4"=>"5100",
+                                "card_type"=>"MasterCard",
+                                "masked_number"=>"510510******5100",
+                                "cardholder_name"=>"John Smith",
+                                "billing_address"=>
+                                    {"street_address"=>"1 E Main St",
+                                     "extended_address"=>"Suite 403",
+                                     "city"=>"Chicago",
+                                     "state"=>"Illinois",
+                                     "postal_code"=>"60622"}}],
+                          "id"=>"123"}
+    assert_equal braintree_customer, response.params["braintree_customer"]
     assert_equal '123', response.params["customer_vault_id"]
-    assert_equal '398fjda', response.params["token"]
+    assert_equal '123ygh', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
   end
 

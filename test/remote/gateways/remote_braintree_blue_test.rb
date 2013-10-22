@@ -137,6 +137,43 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
     assert_equal 'Processor declined: Do Not Honor (2000)', response.message
   end
 
+  def test_successful_find_customer
+    assert response = @gateway.unstore(@vault_id)
+    billing_address = {
+        :address1 => "1 E Main St",
+        :address2 => "Suite 403",
+        :city => "Chicago",
+        :state => "Illinois",
+        :zip => "60622",
+        :country_name => "United States of America"
+    }
+    credit_card = credit_card('5105105105105100')
+    assert response = @gateway.store(credit_card, :id => @vault_id, :billing_address => billing_address)
+    assert response = @gateway.store(@second_card, :id => @vault_id,  :billing_address => billing_address)
+    assert response = @gateway.find_customer(@vault_id)
+    assert_success response
+    response_billing_details = {
+        "state"=>"Illinois",
+        "postal_code"=>"60622",
+        "extended_address"=>"Suite 403",
+        "street_address"=>"1 E Main St",
+        "city"=>"Chicago"
+    }
+    assert_equal response.params['braintree_customer']['credit_cards'][0]['billing_address'], response_billing_details
+    assert_equal '1119', response.params["braintree_customer"]["credit_cards"][0]["last_4"]
+    assert_equal '5100', response.params["braintree_customer"]["credit_cards"][1]["last_4"]
+    assert_equal('510510******5100', response.params["braintree_customer"]["credit_cards"][1]["masked_number"])
+    assert_equal('MasterCard', response.params["braintree_customer"]["credit_cards"][1]["card_type"])
+    assert_equal('510510', response.params["braintree_customer"]["credit_cards"][1]["bin"])
+    assert_equal 2, response.params['braintree_customer']['credit_cards'].count
+  end
+
+  def test_failed_find_customer
+    assert response = @gateway.unstore(@vault_id)
+    assert response = @gateway.find_customer(@vault_id)
+    assert_failure response
+  end
+
   def test_successful_store_with_no_validate
     assert response = @gateway.unstore(@vault_id)
     card = credit_card('4000111111111115', :verification_value => '200')

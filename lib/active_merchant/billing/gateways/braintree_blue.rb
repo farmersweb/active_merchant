@@ -121,6 +121,21 @@ module ActiveMerchant #:nodoc:
         end
       end
 
+      def find_customer(id)
+        begin
+          # Attempt to find this customer and add a credit card
+          customer = Braintree::Customer.find(id)
+          Response.new(
+              true,
+              nil,
+              {:braintree_customer => (customer_hash(customer))}
+          )
+            # If no luck, create a new customer and card at once
+        rescue Braintree::NotFoundError
+          Response.new(false, "Not found")
+        end
+      end
+
       def store(creditcard, options = {})
         commit do
 
@@ -319,7 +334,17 @@ module ActiveMerchant #:nodoc:
             "token" => cc.token,
             "last_4" => cc.last_4,
             "card_type" => cc.card_type,
-            "masked_number" => cc.masked_number
+            "masked_number" => cc.masked_number,
+            "cardholder_name" => cc.cardholder_name,
+            "billing_address" => if cc.billing_address.present?
+                      {
+                          "street_address" => cc.billing_address.street_address,
+                          "extended_address" => cc.billing_address.extended_address,
+                          "city" => cc.billing_address.locality,
+                          "state" => cc.billing_address.region,
+                          "postal_code" => cc.billing_address.postal_code
+                      }
+            end
           }
         end
 
