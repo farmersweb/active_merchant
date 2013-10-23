@@ -48,7 +48,7 @@ module ActiveMerchant #:nodoc:
     # * <tt>:city</tt> - The city of the customer.
     # * <tt>:state</tt> - The state of the customer.  The 2 digit code for US and Canadian addresses. The full name of the state or province for foreign addresses.
     # * <tt>:country</tt> - The [ISO 3166-1-alpha-2 code](http://www.iso.org/iso/country_codes/iso_3166_code_lists/english_country_names_and_code_elements.htm) for the customer.
-    # * <tt>:zip</tt> - The zip or postal code of the customer.
+    # * <tt>:zip_code</tt> - The zip_code or postal code of the customer.
     # * <tt>:phone</tt> - The phone number of the customer.
     #
     # == Implmenting new gateways

@@ -28,7 +28,7 @@ module ActiveMerchant #:nodoc:
         #                              :address2 => 'Apt. 36',
         #                              :state => 'ON',
         #                              :country => 'CA',
-        #                              :zip => 'K1J1E5' %>
+        #                              :zip_code => 'K1J1E5' %>
         #
         #    <% service.invoice '#1000' %>
         #    <% service.shipping '0.00' %>

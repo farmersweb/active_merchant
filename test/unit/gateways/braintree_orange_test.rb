@@ -52,7 +52,7 @@ class BraintreeOrangeTest < Test::Unit::TestCase
     result = {}
 
     @gateway.send(:add_address, result,   {:address1 => '164 Waverley Street', :country => 'US', :state => 'CO'} )
-    assert_equal ["address1", "city", "company", "country", "phone", "state", "zip"], result.stringify_keys.keys.sort
+    assert_equal ["address1", "city", "company", "country", "phone", "state", "zip_code"], result.stringify_keys.keys.sort
     assert_equal 'CO', result["state"]
     assert_equal '164 Waverley Street', result["address1"]
     assert_equal 'US', result["country"]
@@ -62,7 +62,7 @@ class BraintreeOrangeTest < Test::Unit::TestCase
     result = {}
 
     @gateway.send(:add_address, result,   {:address1 => '164 Waverley Street', :country => 'US', :state => 'CO'},"shipping" )
-    assert_equal ["shipping_address1", "shipping_city", "shipping_company", "shipping_country", "shipping_phone", "shipping_state", "shipping_zip"], result.stringify_keys.keys.sort
+    assert_equal ["shipping_address1", "shipping_city", "shipping_company", "shipping_country", "shipping_phone", "shipping_state", "shipping_zip_code"], result.stringify_keys.keys.sort
     assert_equal 'CO', result["shipping_state"]
     assert_equal '164 Waverley Street', result["shipping_address1"]
     assert_equal 'US', result["shipping_country"]

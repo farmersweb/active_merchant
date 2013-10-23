@@ -324,7 +324,7 @@ module ActiveMerchant #:nodoc:
         if address = options[:billing_address] || options[:address]
           credit_card[:street_address] = address[:address1] if address[:address1]
           credit_card[:street_address] += ' ' + address[:address2] if address[:address2]
-          credit_card[:postal_code] = address[:zip] if address[:zip]
+          credit_card[:postal_code] = address[:zip_code] if address[:zip_code]
           credit_card[:country] = address[:country] if address[:country]
         end
       end

@@ -18,7 +18,7 @@ module ActiveMerchant #:nodoc:
                                     :address1 => '',
                                     :address2 => '',
                                     :state    => '',
-                                    :zip      => '',
+                                    :zip_code      => '',
                                     :country  => ''
 
           mapping :notify_url, ''

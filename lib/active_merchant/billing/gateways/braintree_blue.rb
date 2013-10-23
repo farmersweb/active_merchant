@@ -250,7 +250,7 @@ module ActiveMerchant #:nodoc:
           :company => address[:company],
           :locality => address[:city],
           :region => address[:state],
-          :postal_code => address[:zip],
+          :postal_code => address[:zip_code],
         }
         if(address[:country] || address[:country_code_alpha2])
           mapped[:country_code_alpha2] = (address[:country] || address[:country_code_alpha2])

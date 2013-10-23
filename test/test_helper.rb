@@ -188,7 +188,7 @@ module ActiveMerchant
         :company  => 'Widgets Inc',
         :city     => 'Ottawa',
         :state    => 'ON',
-        :zip      => 'K1C2N6',
+        :zip_code      => 'K1C2N6',
         :country  => 'CA',
         :phone    => '(555)555-5555',
         :fax      => '(555)555-6666'

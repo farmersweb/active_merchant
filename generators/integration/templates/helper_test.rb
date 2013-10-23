@@ -26,7 +26,7 @@ class <%= class_name %>HelperTest < Test::Unit::TestCase
                             :address2 => '',
                             :city => 'Leeds',
                             :state => 'Yorkshire',
-                            :zip => 'LS2 7EE',
+                            :zip_code => 'LS2 7EE',
                             :country  => 'CA'
    
     assert_field '', '1 My Street'

@@ -233,7 +233,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :address2 => "Suite 403",
       :city => "Chicago",
       :state => "Illinois",
-      :zip => "60622",
+      :zip_code => "60622",
       :country_name => "US"
     }
 
@@ -402,7 +402,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :address1 => "1 E Main St",
       :city => "Chicago",
       :state => "Illinois",
-      :zip => "60622",
+      :zip_code => "60622",
       :country => "US"
     }
     params = {:first_name => 'John'}

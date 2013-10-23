@@ -138,7 +138,7 @@ module ActiveMerchant #:nodoc:
           post[prefix+"address2"]    = address[:address2].to_s unless address[:address2].blank?
           post[prefix+"company"]    = address[:company].to_s
           post[prefix+"phone"]      = address[:phone].to_s
-          post[prefix+"zip"]        = address[:zip].to_s
+          post[prefix+"zip_code"]   = address[:zip_code].to_s
           post[prefix+"city"]       = address[:city].to_s
           post[prefix+"country"]    = address[:country].to_s
           post[prefix+"state"]      = address[:state].blank?  ? 'n/a' : address[:state]

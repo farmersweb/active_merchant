@@ -144,7 +144,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
         :address2 => "Suite 403",
         :city => "Chicago",
         :state => "Illinois",
-        :zip => "60622",
+        :zip_code => "60622",
         :country_name => "United States of America"
     }
     credit_card = credit_card('5105105105105100')
@@ -196,7 +196,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
       :address2 => "Suite 403",
       :city => "Chicago",
       :state => "Illinois",
-      :zip => "60622",
+      :zip_code => "60622",
       :country_name => "United States of America"
     }
     credit_card = credit_card('5105105105105100')
@@ -228,7 +228,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
   def test_avs_match
     assert response = @gateway.purchase(@amount, @credit_card,
       @options.merge(
-        :billing_address => {:address1 => "1 E Main St", :zip => "60622"}
+        :billing_address => {:address1 => "1 E Main St", :zip_code => "60622"}
       )
     )
     assert_success response
@@ -238,7 +238,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
   def test_transaction_succeeds_with_bad_avs_without_avs_rules
     assert response = @gateway.purchase(@amount, @credit_card,
       @options.merge(
-        :billing_address => {:address1 => "200 E Main St", :zip => "20000"}
+        :billing_address => {:address1 => "200 E Main St", :zip_code => "20000"}
       )
     )
     assert_success response
@@ -252,7 +252,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
 
     assert response = gateway.purchase(@amount, @credit_card,
       @options.merge(
-        :billing_address => {:address1 => "200 E Main St", :zip => "20000"}
+        :billing_address => {:address1 => "200 E Main St", :zip_code => "20000"}
       )
     )
 
@@ -322,7 +322,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
       :company => 'Widgets Co',
       :city => 'Chicago',
       :state => 'IL',
-      :zip => '60622',
+      :zip_code => '60622',
       :country_name => 'United States of America'
     }
     shipping_address = {
@@ -331,7 +331,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
       :company => 'Widgets Company',
       :city => 'Bartlett',
       :state => 'Illinois',
-      :zip => '60103',
+      :zip_code => '60103',
       :country_name => 'Mexico'
     }
     assert response = @gateway.purchase(@amount, @credit_card,
