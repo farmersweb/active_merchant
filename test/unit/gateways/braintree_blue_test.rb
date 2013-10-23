@@ -116,16 +116,16 @@ class BraintreeBlueTest < Test::Unit::TestCase
     end.returns(customer)
 
     response = @gateway.find_customer('123')
-    assert_equal '123', response.params["braintree_customer"]["id"]
-    assert_equal '510510', response.params["braintree_customer"]["credit_cards"][0]["bin"]
-    assert_equal '12/2020', response.params["braintree_customer"]["credit_cards"][0]["expiration_date"]
-    assert_equal '123ygh', response.params["braintree_customer"]["credit_cards"][0]["token"]
-    assert_equal '5100', response.params["braintree_customer"]["credit_cards"][0]["last_4"]
-    assert_equal 'MasterCard', response.params["braintree_customer"]["credit_cards"][0]["card_type"]
-    assert_equal '510510******5100', response.params["braintree_customer"]["credit_cards"][0]["masked_number"]
-    assert_equal 'John Smith', response.params["braintree_customer"]["credit_cards"][0]["cardholder_name"]
-    assert_equal '1 E Main St', response.params["braintree_customer"]["credit_cards"][0]["billing_address"]["street_address"]
-    assert_equal '60622', response.params["braintree_customer"]["credit_cards"][0]["billing_address"]["postal_code"]
+    assert_equal '123', response.params["customer"]["id"]
+    assert_equal '510510', response.params["customer"]["credit_cards"][0]["bin"]
+    assert_equal '12/2020', response.params["customer"]["credit_cards"][0]["expiration_date"]
+    assert_equal '123ygh', response.params["customer"]["credit_cards"][0]["token"]
+    assert_equal '5100', response.params["customer"]["credit_cards"][0]["last_4"]
+    assert_equal 'MasterCard', response.params["customer"]["credit_cards"][0]["card_type"]
+    assert_equal '510510******5100', response.params["customer"]["credit_cards"][0]["masked_number"]
+    assert_equal 'John Smith', response.params["customer"]["credit_cards"][0]["cardholder_name"]
+    assert_equal '1 E Main St', response.params["customer"]["credit_cards"][0]["billing_address"]["street_address"]
+    assert_equal '60622', response.params["customer"]["credit_cards"][0]["billing_address"]["postal_code"]
   end
 
   def test_failed_find_customer
@@ -345,7 +345,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
                                      "state"=>"Illinois",
                                      "postal_code"=>"60622"}}],
                           "id"=>"123"}
-    assert_equal braintree_customer, response.params["braintree_customer"]
+    assert_equal braintree_customer, response.params["customer"]
     assert_equal '123', response.params["customer_vault_id"]
     assert_equal '123ygh', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization

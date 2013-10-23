@@ -128,7 +128,7 @@ module ActiveMerchant #:nodoc:
           Response.new(
               true,
               nil,
-              {:braintree_customer => (customer_hash(customer))}
+              {:customer => (customer_hash(customer))}
           )
             # If no luck, create a new customer and card at once
         rescue Braintree::NotFoundError
@@ -182,7 +182,7 @@ module ActiveMerchant #:nodoc:
             result.success?,
             message_from_result(result),
             {
-              :braintree_customer => (customer_hash(customer) if result.success?),
+              :customer => (customer_hash(customer) if result.success?),
               :token => (credit_card.token if result.success?),
               :customer_vault_id => (customer.id if result.success?)
             },
@@ -214,7 +214,7 @@ module ActiveMerchant #:nodoc:
             :credit_card => credit_card_params
           )
           Response.new(result.success?, message_from_result(result),
-            :braintree_customer => (customer_hash(Braintree::Customer.find(vault_id)) if result.success?),
+            :customer => (customer_hash(Braintree::Customer.find(vault_id)) if result.success?),
             :customer_vault_id => (result.customer.id if result.success?)
           )
         end
