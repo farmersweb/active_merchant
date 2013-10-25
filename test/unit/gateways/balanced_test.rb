@@ -485,7 +485,7 @@ class BalancedTest < Test::Unit::TestCase
     "id": "CCZCMxRRAvPt2K4uU460EFX",
     "card_type": "mastercard",
     "is_valid": true,
-    "last_four": 5100,
+    "last_four": 1881,
     "created_at": "2012-06-08T01:56:13.845267Z"
   },
   "is_void": true,
@@ -533,7 +533,7 @@ class BalancedTest < Test::Unit::TestCase
     "id": "CCZCMxRRAvPt2K4uU460EFX",
     "card_type": "mastercard",
     "is_valid": true,
-    "last_four": 5100,
+    "last_four": 1881,
     "created_at": "2012-06-08T01:56:13.845267Z"
   },
   "is_void": false,
@@ -581,7 +581,7 @@ class BalancedTest < Test::Unit::TestCase
     "id": "CCZCMxRRAvPt2K4uU460EFX",
     "card_type": "mastercard",
     "is_valid": true,
-    "last_four": 5100,
+    "last_four": 1881,
     "created_at": "2012-06-08T01:56:13.845267Z"
   },
   "transaction_number": "W615-916-0468",

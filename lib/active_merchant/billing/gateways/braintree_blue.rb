@@ -139,6 +139,9 @@ module ActiveMerchant #:nodoc:
       def store(creditcard, options = {})
         commit do
 
+          # Always force card validation unless it's overridden
+          options[:verify_card] = true unless options.include?(:verify_card)
+
           parameters = {
             :first_name => creditcard.first_name,
             :last_name => creditcard.last_name,

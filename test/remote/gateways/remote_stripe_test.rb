@@ -8,7 +8,7 @@ class RemoteStripeTest < Test::Unit::TestCase
     @amount = 100
     @credit_card = credit_card('4242424242424242')
     @declined_card = credit_card('4000')
-    @new_credit_card = credit_card('5105105105105100')
+    @new_credit_card = credit_card('4012888888881881')
 
     @options = {
       :currency => 'CAD',

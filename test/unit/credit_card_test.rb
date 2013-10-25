@@ -366,7 +366,7 @@ class CreditCardTest < Test::Unit::TestCase
   end
 
   def test_mask_number
-    assert_equal 'XXXX-XXXX-XXXX-5100', CreditCard.mask('5105105105105100')
+    assert_equal 'XXXX-XXXX-XXXX-1881', CreditCard.mask('4012888888881881')
   end
 
   def test_strip_non_digit_characters

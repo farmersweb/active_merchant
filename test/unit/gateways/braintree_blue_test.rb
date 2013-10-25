@@ -94,12 +94,12 @@ class BraintreeBlueTest < Test::Unit::TestCase
         :postal_code => "60622"
     )
     credit_card = mock(
-        :bin => '510510',
+        :bin => '401288',
         :expiration_date => '12/2020',
         :token => '123ygh',
-        :last_4 => '5100',
+        :last_4 => '1881',
         :card_type => 'MasterCard',
-        :masked_number => '510510******5100',
+        :masked_number => '401288******1881',
         :cardholder_name => 'John Smith'
     )
     customer = mock(
@@ -117,12 +117,12 @@ class BraintreeBlueTest < Test::Unit::TestCase
 
     response = @gateway.find_customer('123')
     assert_equal '123', response.params["customer"]["id"]
-    assert_equal '510510', response.params["customer"]["credit_cards"][0]["bin"]
+    assert_equal '401288', response.params["customer"]["credit_cards"][0]["bin"]
     assert_equal '12/2020', response.params["customer"]["credit_cards"][0]["expiration_date"]
     assert_equal '123ygh', response.params["customer"]["credit_cards"][0]["token"]
-    assert_equal '5100', response.params["customer"]["credit_cards"][0]["last_4"]
+    assert_equal '1881', response.params["customer"]["credit_cards"][0]["last_4"]
     assert_equal 'MasterCard', response.params["customer"]["credit_cards"][0]["card_type"]
-    assert_equal '510510******5100', response.params["customer"]["credit_cards"][0]["masked_number"]
+    assert_equal '401288******1881', response.params["customer"]["credit_cards"][0]["masked_number"]
     assert_equal 'John Smith', response.params["customer"]["credit_cards"][0]["cardholder_name"]
     assert_equal '1 E Main St', response.params["customer"]["credit_cards"][0]["billing_address"]["street_address"]
     assert_equal '60622', response.params["customer"]["credit_cards"][0]["billing_address"]["postal_code"]
@@ -145,11 +145,11 @@ class BraintreeBlueTest < Test::Unit::TestCase
         :postal_code => "60622"
     )
     credit_card = mock(
-        :bin => '510510',
+        :bin => '401288',
         :expiration_date => '12/2020',
-        :last_4 => '5100',
+        :last_4 => '1881',
         :card_type => 'MasterCard',
-        :masked_number => '510510******5100',
+        :masked_number => '401288******1881',
         :cardholder_name => 'John Smith'
     )
     credit_card.stubs(:billing_address).returns(billing_address)
@@ -191,11 +191,11 @@ class BraintreeBlueTest < Test::Unit::TestCase
         :postal_code => "60622"
     )
     credit_card = mock(
-        :bin => '510510',
+        :bin => '401288',
         :expiration_date => '12/2020',
-        :last_4 => '5100',
+        :last_4 => '1881',
         :card_type => 'MasterCard',
-        :masked_number => '510510******5100',
+        :masked_number => '401288******1881',
         :cardholder_name => 'John Smith'
     )
     credit_card.stubs(:billing_address).returns(billing_address)
@@ -245,11 +245,11 @@ class BraintreeBlueTest < Test::Unit::TestCase
         :postal_code => "60622"
     )
     credit_card = mock(
-        :bin => '510510',
+        :bin => '401288',
         :expiration_date => '12/2020',
-        :last_4 => '5100',
+        :last_4 => '1881',
         :card_type => 'MasterCard',
-        :masked_number => '510510******5100',
+        :masked_number => '401288******1881',
         :cardholder_name => 'John Smith'
     )
     credit_card.stubs(:billing_address).returns(billing_address)
@@ -288,11 +288,11 @@ class BraintreeBlueTest < Test::Unit::TestCase
         :postal_code => "60622"
     )
     credit_card = mock(
-        :bin => '510510',
+        :bin => '401288',
         :expiration_date => '12/2020',
-        :last_4 => '5100',
+        :last_4 => '1881',
         :card_type => 'MasterCard',
-        :masked_number => '510510******5100',
+        :masked_number => '401288******1881',
         :cardholder_name => 'John Smith'
     )
     credit_card.stubs(:token).returns('123ygh')
@@ -331,12 +331,12 @@ class BraintreeBlueTest < Test::Unit::TestCase
                           "first_name"=>"John",
                           "last_name"=>"Smith",
                           "credit_cards"=>
-                              [{"bin"=>"510510",
+                              [{"bin"=>"401288",
                                 "expiration_date"=>"12/2020",
                                 "token"=>"123ygh",
-                                "last_4"=>"5100",
+                                "last_4"=>"1881",
                                 "card_type"=>"MasterCard",
-                                "masked_number"=>"510510******5100",
+                                "masked_number"=>"401288******1881",
                                 "cardholder_name"=>"John Smith",
                                 "billing_address"=>
                                     {"street_address"=>"1 E Main St",
