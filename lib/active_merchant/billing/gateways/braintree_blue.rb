@@ -82,7 +82,7 @@ module ActiveMerchant #:nodoc:
       def capture(money, authorization, options = {})
         commit do
           result = Braintree::Transaction.submit_for_settlement(authorization, amount(money).to_s)
-          Response.new(result.success?, message_from_result(result))
+          Response.new(result.success?, message_from_result(result), :raw_response => result)
         end
       end
 
@@ -103,7 +103,8 @@ module ActiveMerchant #:nodoc:
         commit do
           result = Braintree::Transaction.refund(transaction_id, money)
           Response.new(result.success?, message_from_result(result),
-            {:braintree_transaction => (transaction_hash(result.transaction) if result.success?)},
+            {:braintree_transaction => (transaction_hash(result.transaction) if result.success?),
+             :raw_response => result},
             {:authorization => (result.transaction.id if result.success?)}
            )
         end
@@ -115,7 +116,8 @@ module ActiveMerchant #:nodoc:
           Response.new(
               result.success?,
               message_from_result(result),
-              {:braintree_transaction => (transaction_hash(result.transaction) if result.success?)},
+              {:braintree_transaction => (transaction_hash(result.transaction) if result.success?),
+               :raw_response => result},
               {:authorization => (result.transaction.id if result.success?)}
           )
         end
@@ -128,7 +130,7 @@ module ActiveMerchant #:nodoc:
           Response.new(
               true,
               nil,
-              {:customer => (customer_hash(customer))}
+              {:customer => (customer_hash(customer)), :raw_response => customer}
           )
             # If no luck, create a new customer and card at once
         rescue Braintree::NotFoundError
@@ -187,7 +189,8 @@ module ActiveMerchant #:nodoc:
             {
               :customer => (customer_hash(customer) if result.success?),
               :token => (credit_card.token if result.success?),
-              :customer_vault_id => (customer.id if result.success?)
+              :customer_vault_id => (customer.id if result.success?),
+              :raw_response => result
             },
             :authorization => (customer.id if result.success?)
           )
@@ -216,17 +219,20 @@ module ActiveMerchant #:nodoc:
             :email => options[:email],
             :credit_card => credit_card_params
           )
-          Response.new(result.success?, message_from_result(result),
-            :customer => (customer_hash(Braintree::Customer.find(vault_id)) if result.success?),
-            :customer_vault_id => (result.customer.id if result.success?)
+          Response.new(
+              result.success?,
+              message_from_result(result),
+              :customer => (customer_hash(Braintree::Customer.find(vault_id)) if result.success?),
+              :customer_vault_id => (result.customer.id if result.success?),
+              :raw_response => result
           )
         end
       end
 
       def unstore(customer_vault_id, options = {})
         commit do
-          Braintree::Customer.delete(customer_vault_id)
-          Response.new(true, "OK")
+          result = Braintree::Customer.delete(customer_vault_id)
+          Response.new(true, "OK", :raw_response => result)
         end
       end
       alias_method :delete, :unstore
