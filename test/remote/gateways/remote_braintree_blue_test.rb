@@ -133,6 +133,8 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
     card = credit_card('4000111111111115', :verification_value => '200')
     assert response = @gateway.store(card, :id => @vault_id, :verify_card => true)
     assert_failure response
+    assert_equal 'processor_declined', response.params["verification"].status
+    assert response.params["verification"].id
     assert_equal 'Processor declined: Do Not Honor (2000)', response.message
   end
 

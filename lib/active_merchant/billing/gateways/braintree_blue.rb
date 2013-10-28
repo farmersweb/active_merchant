@@ -190,6 +190,7 @@ module ActiveMerchant #:nodoc:
               :customer => (customer_hash(customer) if result.success?),
               :token => (credit_card.token if result.success?),
               :customer_vault_id => (customer.id if result.success?),
+              :verification => (result.credit_card_verification if result.respond_to?(:credit_card_verification)),
               :raw_response => result
             },
             :authorization => (customer.id if result.success?)
