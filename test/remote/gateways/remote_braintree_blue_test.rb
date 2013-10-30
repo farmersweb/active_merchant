@@ -46,7 +46,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
   def test_failed_duplicate_credit_card_store
     assert response = @gateway.unstore(@vault_id)
     assert response = @gateway.store(@credit_card, :id => @vault_id)
-    assert response = @gateway.store(@credit_card, :id => @vault_id)
+    assert response = @gateway.store(@credit_card, :id => @vault_id, :fail_on_duplicate_payment_method=>true)
     assert_failure response
     assert_equal 'Duplicate card exists in the vault. (81724)', response.message
   end
@@ -299,7 +299,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
     )
     assert_success response
     assert_equal '1000 Approved', response.message
-    assert_match(/\A\d{6,7}\z/, response.params["customer_vault_id"])
+    assert_match(/\A\d{6,8}\z/, response.params["customer_vault_id"])
     assert_equal '401288', response.params["braintree_transaction"]["vault_customer"]["credit_cards"][0]["bin"]
     assert_equal '401288', Braintree::Customer.find(response.params["customer_vault_id"]).credit_cards[0].bin
   end

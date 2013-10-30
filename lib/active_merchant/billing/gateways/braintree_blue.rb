@@ -163,7 +163,6 @@ module ActiveMerchant #:nodoc:
             customer = Braintree::Customer.find(options[:id])
 
             # If that was successful, prepare the parameters for a create call
-            options[:fail_on_duplicate_payment_method] = true
             parameters[:credit_card][:customer_id] = options[:id]
             parameters = merge_credit_card_options(parameters, options)
             result = Braintree::CreditCard.create(parameters[:credit_card])

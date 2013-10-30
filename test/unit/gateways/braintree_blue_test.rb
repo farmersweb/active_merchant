@@ -319,8 +319,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
           :cardholder_name=>"Longbob Longsen",
           :customer_id=>"123",
           :options=>{
-              :verify_card=>true,
-              :fail_on_duplicate_payment_method=>true
+              :verify_card=>true
           }}
       assert_equal params, cc
     end.returns(result)
