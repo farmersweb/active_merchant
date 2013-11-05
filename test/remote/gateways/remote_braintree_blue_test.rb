@@ -11,6 +11,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
     @credit_card = credit_card('4012888888881881')
     @second_card = credit_card('4217651111111119')
     @declined_card = credit_card('4000300011112220')
+    @unverifable_card = credit_card('4000111111111115')
 
     @options = {
       :order_id => '1',
@@ -581,5 +582,26 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
     assert response = @gateway.update(customer_without_credit_card.id, credit_card('4012888888881881'))
     assert_failure response
     assert_equal 'Braintree::NotFoundError', response.message
+  end
+
+  def test_successful_verify_card
+    assert response = @gateway.unstore(@vault_id)
+    assert store_response = @gateway.store(@credit_card, :id => @vault_id)
+    assert verify_response = @gateway.verify(@vault_id, store_response.params["token"])
+    assert_success response
+    assert_equal store_response.params["token"], verify_response.params["token"]
+    assert_equal verify_response.action, :verify
+    assert_equal verify_response.gateway, :braintree_vault
+  end
+
+  def test_failed_verify_card
+    assert response = @gateway.unstore(@vault_id)
+    assert store_response = @gateway.store(@unverifable_card, :id => @vault_id, :verify_card => false)
+    assert verify_response = @gateway.verify(@vault_id, store_response.params["token"])
+    assert_failure verify_response
+    assert_equal store_response.params["token"], verify_response.params["token"]
+    assert_equal verify_response.action, :verify
+    assert_equal verify_response.gateway, :braintree_vault
+    assert verify_response.params["verification"].id.present?
   end
 end

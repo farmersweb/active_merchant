@@ -68,6 +68,25 @@ module ActiveMerchant #:nodoc:
       cattr_reader :implementations
       @@implementations = []
 
+      def self.factory(type)
+
+        case type
+          when :braintree_vault
+            # TODO: Move this elsewhere
+            ActiveMerchant::Billing::Base.mode = :test
+
+            # TODO: Move this elsewhere, should be agnostic to braintree
+            ActiveMerchant::Billing::BraintreeGateway.new(
+                :merchant_id => ENV["BRAINTREE_MERCHANT_ID"],
+                :public_key => ENV["BRAINTREE_PUBLIC_KEY"],
+                :private_key => ENV["BRAINTREE_PRIVATE_KEY"]
+            )
+
+          when :offline
+            ActiveMerchant::Billing::OfflineGateway.new()
+        end
+      end
+
       def self.inherited(subclass)
         super
         @@implementations << subclass

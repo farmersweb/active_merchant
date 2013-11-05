@@ -15,6 +15,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       returns(braintree_result(:id => "refund_transaction_id"))
     response = @gateway.refund('transaction_id', :test => true)
     assert_equal "refund_transaction_id", response.authorization
+    assert_equal :refund, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_refund_method_signature
@@ -23,6 +25,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       returns(braintree_result(:id => "refund_transaction_id"))
     response = @gateway.refund(1000, 'transaction_id', :test => true)
     assert_equal "refund_transaction_id", response.authorization
+    assert_equal :refund, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_void_transaction
@@ -32,6 +36,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
 
     response = @gateway.void('transaction_id', :test => true)
     assert_equal "void_transaction_id", response.authorization
+    assert_equal :void, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_user_agent_includes_activemerchant_version
@@ -126,6 +132,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
     assert_equal 'John Smith', response.params["customer"]["credit_cards"][0]["cardholder_name"]
     assert_equal '1 E Main St', response.params["customer"]["credit_cards"][0]["billing_address"]["street_address"]
     assert_equal '60622', response.params["customer"]["credit_cards"][0]["billing_address"]["postal_code"]
+    assert_equal :find_customer, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_failed_find_customer
@@ -134,6 +142,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
     end.raises(Braintree::NotFoundError)
     response = @gateway.find_customer("123")
     assert_failure response
+    assert_equal :find_customer, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_store_with_verify_card_true
@@ -180,6 +190,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
     assert_equal '123', response.params["customer_vault_id"]
     assert_equal '398fjda', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
+    assert_equal :store, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_store_with_verify_card_false
@@ -225,6 +237,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
     assert_equal "123", response.params["customer_vault_id"]
     assert_equal '398fjda', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
+    assert_equal :store, response.action
+    assert_equal :braintree_vault, response.gateway
   end
 
   def test_store_with_billing_address_options
@@ -348,6 +362,37 @@ class BraintreeBlueTest < Test::Unit::TestCase
     assert_equal '123', response.params["customer_vault_id"]
     assert_equal '123ygh', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
+    assert_equal :store, response.action
+    assert_equal :braintree_vault, response.gateway
+  end
+
+  def test_successful_verify_existing_card
+    result = Braintree::SuccessfulResult.new()
+    Braintree::Customer.expects(:update).with do |vault_id, customer|
+      assert_equal "123", vault_id
+      assert_equal "f8934hsjfk", customer[:credit_card][:options][:update_existing_token]
+      assert_equal true, customer[:credit_card][:options][:verify_card]
+    end.returns(result)
+
+    assert response = @gateway.verify('123', 'f8934hsjfk')
+    assert_equal true, response.success?
+    assert_equal :verify, response.action
+    assert_equal :braintree_vault, response.gateway
+  end
+
+  def test_failed_verify_existing_card
+    result = Braintree::ErrorResult.new(@gateway, {:verification => {:id => "3akfj3498"}, :errors => {:errors=>[], :credit_card=>{:errors=>[]}}})
+    Braintree::Customer.expects(:update).with do |vault_id, customer|
+      assert_equal "123", vault_id
+      assert_equal "f8934hsjfk", customer[:credit_card][:options][:update_existing_token]
+      assert_equal true, customer[:credit_card][:options][:verify_card]
+    end.returns(result)
+
+    assert response = @gateway.verify('123', 'f8934hsjfk')
+    assert_equal false, response.success?
+    assert_equal :verify, response.action
+    assert_equal :braintree_vault, response.gateway
+    assert response.params["verification"].id.present?
   end
 
   def test_update_with_cvv

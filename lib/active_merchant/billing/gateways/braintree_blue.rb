@@ -82,7 +82,7 @@ module ActiveMerchant #:nodoc:
       def capture(money, authorization, options = {})
         commit do
           result = Braintree::Transaction.submit_for_settlement(authorization, amount(money).to_s)
-          Response.new(result.success?, message_from_result(result), :raw_response => result)
+          Response.new(result.success?, message_from_result(result), {:raw_response => result}, :gateway => :braintree_vault, :action => :capture)
         end
       end
 
@@ -105,7 +105,9 @@ module ActiveMerchant #:nodoc:
           Response.new(result.success?, message_from_result(result),
             {:braintree_transaction => (transaction_hash(result.transaction) if result.success?),
              :raw_response => result},
-            {:authorization => (result.transaction.id if result.success?)}
+            :authorization => (result.transaction.id if result.success?),
+            :gateway => :braintree_vault,
+            :action => :refund
            )
         end
       end
@@ -118,7 +120,9 @@ module ActiveMerchant #:nodoc:
               message_from_result(result),
               {:braintree_transaction => (transaction_hash(result.transaction) if result.success?),
                :raw_response => result},
-              {:authorization => (result.transaction.id if result.success?)}
+              :authorization => (result.transaction.id if result.success?),
+              :gateway => :braintree_vault,
+              :action => :void
           )
         end
       end
@@ -130,11 +134,15 @@ module ActiveMerchant #:nodoc:
           Response.new(
               true,
               nil,
-              {:customer => (customer_hash(customer)), :raw_response => customer}
+              {:customer => (customer_hash(customer)), :raw_response => customer},
+              :gateway => :braintree_vault,
+              :action => :find_customer
           )
             # If no luck, create a new customer and card at once
         rescue Braintree::NotFoundError
-          Response.new(false, "Not found")
+          Response.new(false, "Not found",{},
+                       :gateway => :braintree_vault,
+                       :action => :find_customer)
         end
       end
 
@@ -192,7 +200,9 @@ module ActiveMerchant #:nodoc:
               :verification => (result.credit_card_verification if result.respond_to?(:credit_card_verification)),
               :raw_response => result
             },
-            :authorization => (customer.id if result.success?)
+            :authorization => (customer.id if result.success?),
+            :gateway => :braintree_vault,
+            :action => :store
           )
         end
       end
@@ -222,9 +232,11 @@ module ActiveMerchant #:nodoc:
           Response.new(
               result.success?,
               message_from_result(result),
-              :customer => (customer_hash(Braintree::Customer.find(vault_id)) if result.success?),
+              {:customer => (customer_hash(Braintree::Customer.find(vault_id)) if result.success?),
               :customer_vault_id => (result.customer.id if result.success?),
-              :raw_response => result
+              :raw_response => result},
+              :gateway => :braintree_vault,
+              :action => :update
           )
         end
       end
@@ -232,11 +244,36 @@ module ActiveMerchant #:nodoc:
       def unstore(customer_vault_id, options = {})
         commit do
           result = Braintree::Customer.delete(customer_vault_id)
-          Response.new(true, "OK", :raw_response => result)
+          Response.new(true, "OK", {:raw_response => result}, :gateway => :braintree_vault, :action => :unstore)
         end
       end
       alias_method :delete, :unstore
 
+      def verify(customer_vault_id, token)
+        result = Braintree::Customer.update(
+          customer_vault_id,
+          :credit_card => {
+                :options => {
+                  :update_existing_token => token,
+                  :verify_card => true
+                }
+            }
+        )
+
+        Response.new(
+            result.success?,
+            message_from_result(result),
+            {
+                :raw_response => result,
+                :token => token,
+                :verification => (result.credit_card_verification if result.respond_to?(:credit_card_verification))
+            },
+            :gateway => :braintree_vault,
+            :action => :verify
+        )
+      end
+
+      # PRIVATE
       private
 
       def merge_credit_card_options(parameters, options)

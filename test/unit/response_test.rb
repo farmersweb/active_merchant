@@ -22,6 +22,22 @@ class ResponseTest < Test::Unit::TestCase
     assert_equal ['param'], response.params.keys
   end
 
+  def test_gateway_option
+    response = Response.new(true, 'message', {}, :gateway => :some_gateway)
+    assert_equal response.gateway, :some_gateway
+  end
+
+  def test_action_option
+    response = Response.new(true, 'message', {}, :action => :some_action)
+    assert_equal response.action, :some_action
+  end
+
+  def test_params_with_options
+    response = Response.new(true, 'message', {:param => 'value'}, :action => :some_action)
+    assert_equal ['param'], response.params.keys
+    assert_equal response.action, :some_action
+  end
+
   def test_avs_result
     response = Response.new(true, 'message', {}, :avs_result => { :code => 'A', :street_match => 'Y', :zip_match => 'N' })
     avs_result = response.avs_result
