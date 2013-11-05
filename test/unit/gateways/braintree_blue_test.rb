@@ -190,7 +190,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
     assert_equal '123', response.params["customer_vault_id"]
     assert_equal '398fjda', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
-    assert_equal :store, response.action
+    assert_equal :verify_store, response.action
     assert_equal :braintree_vault, response.gateway
   end
 
@@ -362,7 +362,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
     assert_equal '123', response.params["customer_vault_id"]
     assert_equal '123ygh', response.params["token"]
     assert_equal response.params["customer_vault_id"], response.authorization
-    assert_equal :store, response.action
+    assert_equal :verify_store, response.action
     assert_equal :braintree_vault, response.gateway
   end
 

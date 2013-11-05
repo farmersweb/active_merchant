@@ -202,7 +202,7 @@ module ActiveMerchant #:nodoc:
             },
             :authorization => (customer.id if result.success?),
             :gateway => :braintree_vault,
-            :action => :store
+            :action => (options[:verify_card]? :verify_store : :store)
           )
         end
       end
