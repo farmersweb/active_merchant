@@ -53,11 +53,13 @@ braintree_orange:
 
 # FarmersWeb Sandbox
 braintree_blue:
+  environment: "sandbox"
   merchant_id: 'ct9f6tpxz4gzky65'
   public_key: '5c3xkq3z777q7svn'
   private_key: '00b8ef4388d4b0c730ac2ad4207c5062'
 
 braintree_blue_with_processing_rules:
+  environment: "sandbox"
   merchant_id: X
   public_key: Y
   private_key: Z

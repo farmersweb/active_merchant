@@ -56,7 +56,7 @@ module ActiveMerchant #:nodoc:
       self.display_name = 'Braintree (Blue Platform)'
 
       def initialize(options = {})
-        requires!(options, :merchant_id, :public_key, :private_key)
+        requires!(options, :merchant_id, :public_key, :private_key, :environment)
         @merchant_account_id = options[:merchant_account_id]
 
         super
@@ -65,6 +65,7 @@ module ActiveMerchant #:nodoc:
         Braintree::Configuration.public_key = options[:public_key]
         Braintree::Configuration.private_key = options[:private_key]
         Braintree::Configuration.environment = (options[:environment] || (test? ? :sandbox : :production)).to_sym
+
         Braintree::Configuration.custom_user_agent = "ActiveMerchant #{ActiveMerchant::VERSION}"
 
         if wiredump_device

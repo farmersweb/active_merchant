@@ -5,7 +5,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
     @gateway = BraintreeBlueGateway.new(
       :merchant_id => 'test',
       :public_key => 'test',
-      :private_key => 'test'
+      :private_key => 'test',
+      :environment => "sandbox"
     )
   end
 
@@ -49,7 +50,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :merchant_id => 'test',
       :merchant_account_id => 'present',
       :public_key => 'test',
-      :private_key => 'test'
+      :private_key => 'test',
+      :environment => "sandbox"
     )
 
     Braintree::Transaction.expects(:sale).
@@ -64,7 +66,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :merchant_id => 'test',
       :merchant_account_id => 'present',
       :public_key => 'test',
-      :private_key => 'test'
+      :private_key => 'test', 
+      :environment => 'sandbox'
     )
 
     Braintree::Transaction.expects(:sale).
@@ -329,7 +332,7 @@ class BraintreeBlueTest < Test::Unit::TestCase
           :number=>"41111111111111111111",
           :cvv=>"123",
           :expiration_month=>"09",
-          :expiration_year=>"2014",
+          :expiration_year=>"2015",
           :cardholder_name=>"Longbob Longsen",
           :customer_id=>"123",
           :options=>{
@@ -513,7 +516,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       :merchant_id => 'test',
       :merchant_account_id => 'present',
       :public_key => 'test',
-      :private_key => 'test'
+      :private_key => 'test',
+      :environment => "sandbox"
     )
 
     Braintree::Transaction.expects(:sale).
@@ -549,7 +553,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       BraintreeBlueGateway.new(
         :merchant_id => 'test',
         :public_key => 'test',
-        :private_key => 'test'
+        :private_key => 'test',
+        :environment => "sandbox"
       )
 
       assert_equal Logger::WARN, Braintree::Configuration.logger.level
@@ -566,7 +571,8 @@ class BraintreeBlueTest < Test::Unit::TestCase
       BraintreeBlueGateway.new(
         :merchant_id => 'test',
         :public_key => 'test',
-        :private_key => 'test'
+        :private_key => 'test',
+        :environment => "sandbox"
       )
 
       assert_equal logger, Braintree::Configuration.logger

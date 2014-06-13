@@ -416,7 +416,7 @@ class RemoteBraintreeBlueTest < Test::Unit::TestCase
   end
 
   def test_invalid_login
-    gateway = BraintreeBlueGateway.new(:merchant_id => "invalid", :public_key => "invalid", :private_key => "invalid")
+    gateway = BraintreeBlueGateway.new(:merchant_id => "invalid", :public_key => "invalid", :private_key => "invalid", :environment => "invalid")
     assert response = gateway.purchase(@amount, @credit_card, @options)
     assert_failure response
     assert_equal 'Braintree::AuthenticationError', response.message

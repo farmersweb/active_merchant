@@ -14,7 +14,8 @@ class BraintreeTest < Test::Unit::TestCase
     gateway = BraintreeGateway.new(
       :merchant_id => 'MERCHANT_ID',
       :public_key => 'PUBLIC_KEY',
-      :private_key => 'PRIVATE_KEY'
+      :private_key => 'PRIVATE_KEY',
+      :environment => 'sandbox'
     )
     assert_instance_of BraintreeBlueGateway, gateway
   end
