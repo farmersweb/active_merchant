@@ -61,6 +61,44 @@ class BraintreeBlueTest < Test::Unit::TestCase
     @gateway.authorize(100, credit_card("41111111111111111111"))
   end
 
+  def test_service_fee_and_hold_in_escrow 
+
+    amount = 1000
+    user_token_hash = { :id => 1,
+                        :token => "asdasd" }
+
+    options = {
+      :hold_in_escrow => true,
+      :service_fee => 1,
+      :order_id => 1
+    }
+
+    expected = {
+      :amount => "10.00",
+      :order_id => 1,
+      :payment_method_token => "asdasd",
+      :service_fee_amount => 1,
+      :customer => {
+        :id => nil,
+        :email => nil
+      },
+      :customer_id => 1,
+      :options => {
+        :store_in_vault => false,
+        :submit_for_settlement => nil,
+        :hold_in_escrow => true
+      }
+    
+    }
+    result = @gateway.send( :create_transaction_parameters, 
+                             amount, 
+                             user_token_hash, 
+                             options )
+    
+
+    assert_equal expected, result
+  end
+
   def test_merchant_account_id_on_transaction_takes_precedence
     @gateway = BraintreeBlueGateway.new(
       :merchant_id => 'test',

@@ -479,6 +479,14 @@ module ActiveMerchant #:nodoc:
           parameters[:merchant_account_id] = merchant_account_id
         end
 
+        if options[ :service_fee ]
+          parameters[ :service_fee_amount ] = options[ :service_fee ]
+        end
+
+        if options[ :hold_in_escrow ]
+          parameters[ :options ][ :hold_in_escrow ] = true
+        end
+
         if options[:recurring]
           parameters[:recurring] = true
         end
