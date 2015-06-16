@@ -77,10 +77,10 @@ module ActiveMerchant #:nodoc:
 
             # TODO: Move this elsewhere, should be agnostic to braintree
             ActiveMerchant::Billing::BraintreeGateway.new(
-                :merchant_id => ENV["BRAINTREE_MERCHANT_ID"],
-                :public_key => ENV["BRAINTREE_PUBLIC_KEY"],
-                :private_key => ENV["BRAINTREE_PRIVATE_KEY"],
-                :environment => ENV["BRAINTREE_ENVIRONMENT"]
+                :merchant_id => Rails.application.secrets.BRAINTREE_MERCHANT_ID,
+                :public_key => Rails.application.secrets.BRAINTREE_PUBLIC_KEY,
+                :private_key => Rails.application.secrets.BRAINTREE_PRIVATE_KEY,
+                :environment => Rails.application.secrets.BRAINTREE_ENVIRONMENT
             )
 
           when :offline
